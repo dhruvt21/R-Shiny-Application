@@ -1,0 +1,245 @@
+---
+title: ""
+author: "Dhruv Thakkar"
+date: "05/04/2022"
+output: 
+  html_document:
+    theme: "cerulean"
+    code_download: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Nutritional Analysis showing relation between Macros and calories intake in Fast foods {.tabset}
+
+## Abstract
+<center>
+![](macro.jpg)
+</center> 
+
+In this project, I have chosen to work with fastfood dataset in the openintro package. This dataset contains nutrition amount of 515 food items for various chain of fast food restaturants like Mcdonalds, Taco Bell etc. In this project, I plan to show relationship between the macro nutrients and calories of food items in different fast food chains. This case study will help us decide which fastfood restaurant offers healthy products and cane be relied on when you are on a calorie deficit or dietary restrictions. This case study will answer the following questions.
+
+* What is the relation between the calories and macronutrients in fastfoods offer by the various restaurants?
+
+* Which fast food restaurants have healthy food ?
+
+* Why Taco Bell is a healthy option considered to other fastfood restaurants?
+
+
+
+This study is just the small investigation on a small amount of fastfood restaurants.  It will walk through the development of an analytic model based on a data training set, will test the model using an independent data set, will draw conclusions focused on answering the questions raised in this study.
+
+## Introduction
+
+<center>
+![](new1.jpg_large)
+</center>
+
+Proper nutrition is essential for healthy consumption. This is a fact that several stories around us revolve. Our bodies need close ranges of the specific macronutrients as shown below:
+
+<center>
+![](UACF-Carb-Protein-Fat-Breakdown-Chart.jpg)
+</center>
+
+In today's world we have endless options to choose from to eat. Availability of food is so easy and quick as we have options that range from super low to super costly prices. We can grab fast food to save time. Little do we think of what exactly are we putting in our bodies. Therefore this case study is important for the people who are diet cautious and want to chose between fast food options they want to eat in case they decide to eat out or pick up. I have always had a question when deciding to pick between my favorite fast food restaurants that is Mcdonalds, Chick-fila, subway, Taco-Bell. Through my chosen dataset we will analyse the macro nutrient content of fast food items in the chain of my favorite restaurants.
+
+
+## Required Packages
+
+For the code used in this project, the following packages are required:
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse) #Data manipulation and works alongside other packages
+library(openintro) #Data manipulation and works alongside other packages
+library(magrittr)
+library(dplyr)
+```
+
+## Data Preparation
+
+### **1. Data Import**
+Data has been imported from openintro package. Data name is "fastfood" and it reflects insights into macronutrients of different food items in the chain of different fastfood restaurants
+```{r}
+library(openintro)
+data("fastfood", package = "openintro") # For importing data teacher form open intro
+fastfood
+
+```
+
+### **2. Data Cleaning**
+Data is being cleaned then. The only row values that are important for our findings are Mcdonalds, Chick-Fila, Subway and Tacobell. I have created new dataframe on the basis of the restaurants.
+
+```{r message=FALSE, warning=FALSE}
+chickfila <- fastfood %>%
+  filter(restaurant == "Chick Fil-A")
+Mc_Donalds <- fastfood %>%
+  filter(restaurant == "Mcdonalds") 
+Taco_Bell <- fastfood %>%
+  filter(restaurant == "Taco Bell")
+subway <- fastfood %>%
+  filter(restaurant == "Subway")
+```
+
+### **3. Data Preview**
+
+Data below is the original data containing all the values
+```{r echo= FALSE}
+fastfood
+```
+Data below is refined  only for Chick - Fila Restuarant
+
+```{r echo= FALSE}
+chickfila
+```
+
+Data below is refined  only for Mc_Donalds Restuarant
+```{r echo= FALSE}
+Mc_Donalds
+```
+
+Data below is refined  only for Taco_Bell Restuarant
+```{r echo= FALSE}
+Taco_Bell
+```
+
+Data below is refined  only for subway Restuarant
+```{r echo= FALSE}
+subway
+```
+
+## Data Analysis
+
+```{r message=FALSE, warning=FALSE}
+
+ggplot(data = chickfila, aes(x = calories, y = protein)) + geom_point() + labs(title = 'ChickFila calories vs protein') 
+ggplot(data = chickfila, aes( x = calories, y = total_carb)) + geom_point()+ labs(title = 'ChickFila calories vs total_carb')
+ggplot(data = chickfila, aes( x = calories, y = total_fat)) + geom_point()+ labs(title = 'ChickFila calories vs total_fat')
+ggplot(data = Mc_Donalds, aes(x = calories, y = protein)) + geom_point()+ labs(title = 'McDonalds calories vs Proteins')
+ggplot(data = Mc_Donalds, aes( x = calories, y = total_carb)) + geom_point()+ labs(title = 'McDonalds calories vs total_carbs')
+ggplot(data = Mc_Donalds, aes( x = calories, y = total_fat)) + geom_point()+ labs(title = 'McDonalds calories vs total_fats')
+ggplot(data = Taco_Bell, aes(x = calories, y = protein)) + geom_point()+ labs(title = 'Taco Bells calories vs Proteins')
+ggplot(data = Taco_Bell, aes( x = calories, y = total_carb)) + geom_point()+ labs(title = 'Taco_Bell calories vs total_carb')
+ggplot(data = Taco_Bell, aes( x = calories, y = total_fat)) + geom_point()+ labs(title = 'Taco_Bell calories vs total_fat')
+ggplot(data = subway, aes(x = calories, y = protein)) + geom_point()+ labs(title =' subway calories vs Proteins')
+ggplot(data = subway, aes( x = calories, y = total_carb)) + geom_point()+ labs('subway calories vs total_carb')
+ggplot(data = subway, aes( x = calories, y = total_fat)) + geom_point()+ labs(title = 'subway calories vs total_fat')
+```
+
+```{r message=FALSE, warning=FALSE}
+#Normal Distribution
+cfmean <- mean(chickfila$cal_fat)
+cfmean
+cfsd   <- sd(chickfila$cal_fat)
+cfsd
+```
+
+
+#Calculating the probability that an item in fastfood restaurants have more than 400 calories from fat
+```{r message=FALSE, warning=FALSE}
+
+#Calculating the probability that an item in fastfood restaurants have more than 400 calories from fat
+subway <- fastfood %>%
+  filter(restaurant == "Subway")
+
+submean <- mean(subway$cal_fat)
+subsd <- sd(subway$cal_fat)
+
+1-pnorm(q = 400, mean = submean, sd = subsd)
+
+chickmean <- mean(chickfila$cal_fat)
+chicksd <- sd(chickfila$cal_fat)
+
+1-pnorm(q = 400, mean = chickmean, sd = chicksd)
+
+Mcmean <- mean(Mc_Donalds$cal_fat)
+Mcsd <- sd(Mc_Donalds$cal_fat)
+
+1-pnorm(q = 400, mean = Mcmean, sd = Mcsd)
+
+Tacomean <- mean(Taco_Bell$cal_fat)
+Tacosd <- sd(Taco_Bell$cal_fat)
+
+1-pnorm(q = 400, mean = Tacomean, sd = Tacosd)
+
+```
+
+## Appendix
+### Packages
+```{r message=FALSE, warning=FALSE,eval=FALSE}
+library(tidyverse) #Data manipulation and works alongside other packages
+library(openintro) #Data manipulation and works alongside other packages
+library(magrittr)
+library(dplyr)
+```
+
+### Dataset
+```{r message=FALSE, warning=FALSE,eval=FALSE}
+fastfood
+```
+
+### Full Code
+```{r message=FALSE, warning=FALSE, eval=FALSE}
+
+ggplot(data = chickfila, aes(x = calories, y = protein)) + geom_point() + labs(title = 'ChickFila calories vs protein') 
+ggplot(data = chickfila, aes( x = calories, y = total_carb)) + geom_point()+ labs(title = 'ChickFila calories vs total_carb')
+ggplot(data = chickfila, aes( x = calories, y = total_fat)) + geom_point()+ labs(title = 'ChickFila calories vs total_fat')
+ggplot(data = Mc_Donalds, aes(x = calories, y = protein)) + geom_point()+ labs(title = 'McDonalds calories vs Proteins')
+ggplot(data = Mc_Donalds, aes( x = calories, y = total_carb)) + geom_point()+ labs(title = 'McDonalds calories vs total_carbs')
+ggplot(data = Mc_Donalds, aes( x = calories, y = total_fat)) + geom_point()+ labs(title = 'McDonalds calories vs total_fats')
+ggplot(data = Taco_Bell, aes(x = calories, y = protein)) + geom_point()+ labs(title = 'Taco Bells calories vs Proteins')
+ggplot(data = Taco_Bell, aes( x = calories, y = total_carb)) + geom_point()+ labs(title = 'Taco_Bell calories vs total_carb')
+ggplot(data = Taco_Bell, aes( x = calories, y = total_fat)) + geom_point()+ labs(title = 'Taco_Bell calories vs total_fat')
+ggplot(data = subway, aes(x = calories, y = protein)) + geom_point()+ labs(title =' subway calories vs Proteins')
+ggplot(data = subway, aes( x = calories, y = total_carb)) + geom_point()+ labs('subway calories vs total_carb')
+ggplot(data = subway, aes( x = calories, y = total_fat)) + geom_point()+ labs(title = 'subway calories vs total_fat')
+
+subway <- fastfood %>%
+  filter(restaurant == "Subway")
+
+submean <- mean(subway$cal_fat)
+subsd <- sd(subway$cal_fat)
+
+1-pnorm(q = 400, mean = submean, sd = subsd)
+
+chickmean <- mean(chickfila$cal_fat)
+chicksd <- sd(chickfila$cal_fat)
+
+1-pnorm(q = 400, mean = chickmean, sd = chicksd)
+
+Mcmean <- mean(Mc_Donalds$cal_fat)
+Mcsd <- sd(Mc_Donalds$cal_fat)
+
+1-pnorm(q = 400, mean = Mcmean, sd = Mcsd)
+
+Tacomean <- mean(Taco_Bell$cal_fat)
+Tacosd <- sd(Taco_Bell$cal_fat)
+
+1-pnorm(q = 400, mean = Tacomean, sd = Tacosd)
+
+```
+
+## Summary
+In summary, my data analysis involved:
+
+* Analysing all the fastfood chain's macro nutrients against the calories in the food items offered by them. All the macro nutrients tend to show similar trend that is linear trend.
+
+* I also found out that the probability of picking up food items with less than 400 calories from total fats in Taco Bell is less. This is done considering my body requirement since I tend to consume less fat containing food to balance my weight. Similar to this we can filter the data based on individual's dietary requirements.
+
+To conclude this study, this data analysis shows us how we easily eat more calories with certain macros and our food choices. 
+
+## Personal Information
+
+<center>
+![](DT.jpeg){width=20%} 
+</center>
+
+
+* **Name** : Dhruv Thakkar. 
+* **E-mail** dhruvt@clemson.edu
+* **Semester** : Spring 2022
+* **Degree** : MS in Computer Engineering
+* **Hobbies** : Playing football and cricket
+
+
